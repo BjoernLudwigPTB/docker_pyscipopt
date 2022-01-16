@@ -1,0 +1,5 @@
+README.md
+requirements.in
+LICENSE
+*.deb
+!SCIPOptSuite-8.0.0-Linux-debian.deb
