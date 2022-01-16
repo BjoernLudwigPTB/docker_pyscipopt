@@ -1,10 +1,13 @@
-version: '3.7'
+version: '3.8'
 
 services:
-  scip:
-    image: scip:v0.1
-    container_name: scip
-#    user: user
-    build:
-      context: .
-      dockerfile: Dockerfile
+  pyscipopt:
+    image: pyscipopt:4.0.0
+    build: .
+    network_mode: "none"
+    volumes:
+      - type: bind
+        source: ./
+        target: /home/user
+        read_only: true
+
