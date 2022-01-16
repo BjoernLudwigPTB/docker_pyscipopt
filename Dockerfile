@@ -1,40 +1,42 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
-# install compilers and scip deps
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        build-essential \
-        libgfortran4 \
-        libcliquer1 \
-        libopenblas-dev \
-        libgsl23 \
-        libtbb2 \
-        wget \
-    && wget -O libboost.deb "http://archive.ubuntu.com/ubuntu/pool/main/b/boost1.65.1/libboost-program-options1.65.1_1.65.1+dfsg-0ubuntu5_amd64.deb" \
-    && dpkg -i libboost.deb \
-    && rm libboost.deb
+# Install compilers and SCIP deps.
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libcliquer1 \
+    gfortran \
+    libgsl25 \
+    liblapack3 \
+    libopenblas-dev \
+    libtbb2
 
-# add scip installer inside container
-ADD SCIPOptSuite-7.0.2-Linux-ubuntu.deb /
+# Add SCIP optimization suite installer into container.
+COPY SCIPOptSuite-8.0.0-Linux-debian.deb /opt/pyscipopt/
 
-# install scip and remove installer
-RUN dpkg -i SCIPOptSuite-7.0.2-Linux-ubuntu.deb \
-    && rm SCIPOptSuite-7.0.2-Linux-ubuntu.deb
+WORKDIR /opt/pyscipopt/
 
-# create user
-RUN groupadd --gid 1000 user \
-    && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash user \
-    && chown -R "1000:1000" /home/user
+# Install SCIP optimization suite and remove installer.
+RUN dpkg -i SCIPOptSuite-8.0.0-Linux-debian.deb && \
+    rm SCIPOptSuite-8.0.0-Linux-debian.deb 
 
-# move script inside the container
-RUN mkdir /home/user/scripts
-ADD knapsack.py /home/user/scripts
+# Create non-root user.
+RUN useradd --no-log-init --user-group --create-home user
 
+# Install the SCIP Python API.
+COPY requirements.txt /opt/pyscipopt/
+RUN pip install --upgrade pip pip-tools && python -m piptools sync
+
+# Switch to new non-root user.
 USER user
 
-# install scip python api
-RUN pip install pyscipopt
-
+# Set new non-root user's home directory as working directory.
 WORKDIR /home/user
 
-CMD tail -f /dev/null
+# Assign home folder for sharing host files.
+VOLUME /home/user
+
+# Make container behave as executable.
+ENTRYPOINT ["python"]
+
