@@ -34,9 +34,11 @@ into that image, we need to download the according version, currently it's
 the [official website](https://www.scipopt.org/index.php#download). Due the license
 terms we cannot distribute the software itself alongside this Docker code.
 
-Note, that we need to download the Debian .deb installer (careful: there is an Ubuntu
-.deb as well, which will most likely not work). We download the file into the root
-directory (where the Dockerfile and this README is located).
+Note, that we need to [download the Debian .deb installer
+](https://www.scipopt.org/download.php?fname=SCIPOptSuite-8.0.0-Linux-debian.deb)
+(careful: there is an Ubuntu .deb as well, which will most likely not work). We 
+download the file into the root directory (where the Dockerfile and this README
+is located).
 
 Then we build a Docker image via the following command from the root directory:
 
